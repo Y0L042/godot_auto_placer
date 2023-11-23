@@ -18,10 +18,11 @@ func _ready() -> void:
 func autoplace_scenes() -> void:
 	var active_scene: Node = get_tree().edited_scene_root
 	for node in active_scene.get_children():
-		if library_scenes.has(node.name):
+		if node_name_in_library(node.name):
+			print('In library')
 			var scene_resource: PackedScene = library_scenes[node.name]
 			if scene_resource is PackedScene:
-				var scene_instance: Node = scene_resource.instance()
+				var scene_instance: Node = scene_resource.instantiate()
 				node.add_child(scene_instance)
 
 
@@ -38,3 +39,10 @@ func _on_scene_added(scene_name: String, scene_path: String) -> void:
 	var scene_resource = load(scene_path)
 	if scene_resource and scene_resource is PackedScene:
 		library_scenes[scene_name] = scene_resource
+
+
+func node_name_in_library(node_name: String) -> bool:
+	for key in library_scenes.keys():
+		if node_name in key:
+			return true
+	return false

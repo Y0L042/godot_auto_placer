@@ -5,6 +5,7 @@ var library_ui: Control  # UI for the plugin
 
 func _enter_tree() -> void:
 	library_ui = preload("res://addons/auto_placer/library_ui.tscn").instantiate()
+	library_ui.ap_parent = self
 	add_control_to_dock(DOCK_SLOT_RIGHT_BL, library_ui)
 
 func _exit_tree() -> void:

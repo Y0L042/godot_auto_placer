@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://cin28gf4fjgg0"]
+
+[ext_resource type="Script" path="res://addons/auto_placer/prop_grid.gd" id="1_6anks"]
+[ext_resource type="Script" path="res://addons/auto_placer/library_ui.gd" id="1_sb6ri"]
+
+[node name="Library UI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sb6ri")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="btn_autoplace" type="Button" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Auto Place"
+
+[node name="lbl_prop_grid" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Drop prop scenes here."
+mouse_filter = 1
+text = "Prop Library"
+
+[node name="prop_grid" type="ItemList" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+allow_rmb_select = true
+auto_height = true
+max_columns = 2
+same_column_width = true
+script = ExtResource("1_6anks")

@@ -25,8 +25,6 @@ func autoplace_scenes() -> void:
 				node.add_child(scene_instance)
 
 
-
-
 func update_scene_list(scenes: Array) -> void:
 	prop_grid.clear()
 	for scene in scenes:

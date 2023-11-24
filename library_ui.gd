@@ -1,35 +1,47 @@
 @tool
 extends Control
 
+#region Nodes
 @onready var prop_grid: ItemList = %prop_grid
 @onready var btn_autoplace: Button = %btn_autoplace
-
 @onready var btn_debug: Button = $Panel/VBoxContainer/btn_debug
+@onready var txt_marker_key: TextEdit = %txt_marker_key
+#endregion Nodes
 
-
+#region Variables
 var editor_interface:EditorInterface
-var library_scenes: Dictionary = {}  # Dictionary to store scenes with their names as keys
-
 var ap_parent: EditorPlugin
+#endregion Variables
+
+#region Saved Variables TODO
+var marker_key: String
+var library_scenes: Dictionary = {}  # Dictionary to store scenes with their names as keys
+#endregion Saved Variables
+
 
 
 func _ready() -> void:
-	prop_grid.mouse_filter = Control.MOUSE_FILTER_PASS # Set the item list mouse filter to pass to get the drag and drop working on this node
+	# Connect Signals
 	btn_autoplace.pressed.connect(_on_btn_autoplace_pressed)
 	prop_grid.scene_added.connect(_on_scene_added)
-
 	btn_debug.pressed.connect(_on_btn_debug_pressed)
+	txt_marker_key.text_changed.connect(_on_txt_marker_key_changed)
+
+	# Set Variables
+	prop_grid.mouse_filter = Control.MOUSE_FILTER_PASS # Set the item list mouse filter to pass to get the drag and drop working on this node
+	marker_key = txt_marker_key.text
 
 
-
+#region Scene Placement Functions
 func autoplace_scenes() -> void:
 	var active_scene_root: Node = get_tree().edited_scene_root
 	print('Active Scene Root:   ', active_scene_root)
 	place_scenes_recursive(active_scene_root)
 
+
+
 func place_scenes_recursive(node: Node) -> void:
 	var has_placed_scene: bool = false
-
 	for child in node.get_children():
 		if node_name_in_library(child.name):
 			print(child.name, ' is in library')
@@ -37,10 +49,10 @@ func place_scenes_recursive(node: Node) -> void:
 			has_placed_scene = true
 		else:
 			print(child.name, ' not found in library')
-
 		# Only continue recursion if no scene was placed in this child
 		if not has_placed_scene:
 			place_scenes_recursive(child)
+
 
 
 func place_scene(node: Node) -> void:
@@ -52,7 +64,9 @@ func place_scene(node: Node) -> void:
 		print(scene_instance.owner)
 		debug_print_tree(scene_instance)
 
+#endregion Scene Placement Functions
 
+#region Utility Functions
 func save_current_scene(postfix: String = "") -> void:
 	var editor = ap_parent.get_editor_interface()
 	var current_scene = editor.get_edited_scene_root()
@@ -86,10 +100,6 @@ func save_current_scene(postfix: String = "") -> void:
 		print("Current scene has not been saved yet.")
 
 
-
-
-
-
 func get_active_scene_name() -> String:
 	var editor = ap_parent.get_editor_interface()
 	var active_scene = editor.get_edited_scene_root()
@@ -98,18 +108,27 @@ func get_active_scene_name() -> String:
 	else:
 		return "No Active Scene"
 
-
+func node_name_in_library(node_name: String) -> bool:
+	for key in library_scenes.keys():
+		if node_name in key:
+			return true
+	return false
 
 func update_scene_list(scenes: Array) -> void:
 	prop_grid.clear()
 	for scene in scenes:
 		prop_grid.add_item(scene)
 
+#endregion Utility Functions
+
+
+#region Signal Callback Functions
 func _on_btn_autoplace_pressed() -> void:
 	print('Auto Placing...')
 	save_current_scene('_backup')
 	autoplace_scenes()
 	save_current_scene()
+
 
 func _on_scene_added(scene_name: String, scene_path: String) -> void:
 	var scene_resource = load(scene_path)
@@ -117,17 +136,19 @@ func _on_scene_added(scene_name: String, scene_path: String) -> void:
 		library_scenes[scene_name] = scene_resource
 
 
-func node_name_in_library(node_name: String) -> bool:
-	for key in library_scenes.keys():
-		if node_name in key:
-			return true
-	return false
-
+func _on_txt_marker_key_changed() -> void:
+	marker_key = txt_marker_key.text
 
 
 func _on_btn_debug_pressed() -> void:
 	debug_print_tree()
 
+#endregion Signal Callback Functions
+
+
+#region Debug Functions
 func debug_print_tree(node: Node = self) -> void:
 	print('Scene Tree of node   ', node,'   :')
 	node.print_tree_pretty()
+
+#endregion Debug Functions

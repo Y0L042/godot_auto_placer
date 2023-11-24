@@ -33,6 +33,10 @@ layout_mode = 2
 
 [node name="lbl_marker_key" type="Label" parent="Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
+tooltip_text = "Props will be placed under nodes that contains this key in their name.
+
+Use this key in tools, like Blender, when naming markers and empties."
+mouse_filter = 1
 text = "Place Marker Key:"
 
 [node name="txt_marker_key" type="TextEdit" parent="Panel/VBoxContainer/HBoxContainer"]

@@ -49,6 +49,11 @@ script = ExtResource("1_6anks")
 [node name="TextEdit" type="TextEdit" parent="Panel/VBoxContainer"]
 custom_minimum_size = Vector2(150, 100)
 layout_mode = 2
-placeholder_text = "Place Here"
+placeholder_text = "View Scene Info"
 wrap_mode = 1
 script = ExtResource("3_o056u")
+
+[node name="btn_debug" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Print 
+Debug Info"

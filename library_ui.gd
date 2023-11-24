@@ -4,6 +4,8 @@ extends Control
 @onready var prop_grid: ItemList = %prop_grid
 @onready var btn_autoplace: Button = %btn_autoplace
 
+@onready var btn_debug: Button = $Panel/VBoxContainer/btn_debug
+
 
 var editor_interface:EditorInterface
 var library_scenes: Dictionary = {}  # Dictionary to store scenes with their names as keys
@@ -16,17 +18,31 @@ func _ready() -> void:
 	btn_autoplace.pressed.connect(_on_btn_autoplace_pressed)
 	prop_grid.scene_added.connect(_on_scene_added)
 
+	btn_debug.pressed.connect(_on_btn_debug_pressed)
+
+
 func autoplace_scenes() -> void:
 	var active_scene: Node = get_tree().edited_scene_root
+	print('Active Scene:   ', active_scene)
+	print('Active Scene Children:   ', active_scene.get_children())
 	for node in active_scene.get_children():
+		print('Node Name:   ', node.name, '   - Node Children:   ',node.get_children())
 		if node_name_in_library(node.name):
-			print('In library')
+			print(node.name,'   is in library')
 			var scene_resource: PackedScene = library_scenes[node.name]
 			if scene_resource is PackedScene:
 				var scene_instance: Node = scene_resource.instantiate()
 				node.add_child(scene_instance)
 				scene_instance.set_owner(node.get_owner())
 				print(scene_instance.owner)
+				debug_print_tree(scene_instance)
+		else:
+			print(node.name,'   not found in library')
+		debug_print_tree(node.owner)
+
+
+
+
 
 func save_current_scene(postfix: String = "") -> void:
 	var editor = ap_parent.get_editor_interface()
@@ -45,12 +61,10 @@ func save_current_scene(postfix: String = "") -> void:
 		if extension != "":
 			new_file_name += "." + extension
 		var new_save_path: String
-		if directory != "":
+		if directory != "res://":
 			new_save_path = directory + "/" + new_file_name
 		else:
 			new_save_path = new_file_name
-
-		print(new_save_path, ' + ', new_file_name)
 
 		var packed_scene: PackedScene = PackedScene.new()
 		packed_scene.pack(current_scene)
@@ -83,7 +97,7 @@ func update_scene_list(scenes: Array) -> void:
 		prop_grid.add_item(scene)
 
 func _on_btn_autoplace_pressed() -> void:
-	print('Hello, World!')
+	print('Auto Placing...')
 	save_current_scene('_backup')
 	autoplace_scenes()
 	save_current_scene()
@@ -99,3 +113,12 @@ func node_name_in_library(node_name: String) -> bool:
 		if node_name in key:
 			return true
 	return false
+
+
+
+func _on_btn_debug_pressed() -> void:
+	debug_print_tree()
+
+func debug_print_tree(node: Node = self) -> void:
+	print('Scene Tree of node   ', node,'   :')
+	node.print_tree_pretty()

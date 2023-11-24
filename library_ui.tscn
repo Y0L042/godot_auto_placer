@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/auto_placer/prop_grid.gd" id="1_6anks"]
 [ext_resource type="Script" path="res://addons/auto_placer/library_ui.gd" id="1_sb6ri"]
 
-[node name="Library UI" type="Control"]
+[node name="Auto Placer" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,7 +42,7 @@ text = "Place Marker Key:"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
-text = "_prop_i"
+text = "_prop_"
 
 [node name="lbl_prop_grid" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2

@@ -30,7 +30,7 @@ func _ready() -> void:
 	# Connect Signals
 	btn_autoplace.pressed.connect(_on_btn_autoplace_pressed)
 	btn_prop_grid_remove_item.pressed.connect(_on_btn_prop_grid_remove_item_pressed)
-	prop_grid.scene_added.connect(_on_scene_added)
+	prop_grid.signal_add_scene_to_library.connect(_add_scene_to_library)
 	txt_marker_key.text_changed.connect(_on_txt_marker_key_changed)
 
 	btn_debug.pressed.connect(_on_btn_debug_pressed)
@@ -62,7 +62,6 @@ func _ready() -> void:
 		library_scenes = value
 		for item in library_scenes:
 			prop_grid.add_item(item)
-			print(item)
 
 	prop_grid.mouse_filter = Control.MOUSE_FILTER_PASS # Set the item list mouse filter to pass to get the drag and drop working on this node
 
@@ -85,11 +84,18 @@ func place_scenes_recursive(node: Node, root_owner: Node, undo_redo: EditorUndoR
 	for child in node.get_children():
 		#print('Testing --   Marker Key: ', marker_key, '   |   Child Name: ', child.name, '   |   [1] in [2]: ', marker_key in child.name)
 		if marker_key in child.name:
-			var modified_name: String = child.name.replace(marker_key, "")
-			if node_name_in_library(modified_name):
+			var modified_node_name: String = child.name.replace(marker_key, "")
+			print('modded node name   ', modified_node_name)
+			var library_prop_name: String = get_library_prop_in_node_name(modified_node_name)
+			if library_prop_name:
 				print(' + ', child.name.replace(marker_key, ""), ' is in library')
-				var scene_instance: Node = place_scene(child, modified_name, _root_owner, undo_redo)
+				var scene_instance: Node = place_scene(child, library_prop_name, _root_owner, undo_redo)
 				has_placed_scene = true
+
+			#if node_name_in_library(modified_node_name):
+				#print(' + ', child.name.replace(marker_key, ""), ' is in library')
+				#var scene_instance: Node = place_scene(child, modified_node_name, _root_owner, undo_redo)
+				#has_placed_scene = true
 		else:
 			print(' - ',child.name, ' not found in library')
 		# Only continue recursion if no scene was placed in this child
@@ -162,6 +168,14 @@ func get_active_scene_name() -> String:
 	else:
 		return "No Active Scene"
 
+func get_library_prop_in_node_name(node_name: String) -> String:
+	print('library_scenes.keys:   ', library_scenes.keys())
+	for key in library_scenes.keys():
+		print('get_library_prop_in_node_name:  key: ', key,'  | node name:',node_name)
+		if key in node_name:
+			return key
+	return ""
+
 func node_name_in_library(node_name: String) -> bool:
 	for key in library_scenes.keys():
 		if node_name in key:
@@ -191,7 +205,7 @@ func _on_btn_prop_grid_remove_item_pressed() -> void:
 		library_scenes.erase(name)
 	ap_saver.write_to_config(library_scenes_name, library_scenes)
 
-func _on_scene_added(scene_name: String, scene_path: String) -> void:
+func _add_scene_to_library(scene_name: String, scene_path: String) -> void:
 	var scene_resource = load(scene_path)
 	if scene_resource and scene_resource is PackedScene:
 		library_scenes[scene_name] = scene_resource

@@ -1,7 +1,7 @@
 @tool
 extends ItemList
 
-signal scene_added(scene_name, scene_path)
+signal signal_add_scene_to_library(scene_name, scene_path)
 
 func _ready() -> void:
 	pass
@@ -32,12 +32,23 @@ func _drop_data(position, data) -> void:
 	if _can_drop_data(position, data):
 		if typeof(data) == TYPE_DICTIONARY && data.has('files'):
 			var scene_path: String = data['files'][0]
+			print('Scene Path:', scene_path)
+			if is_a_duplicate(scene_path):
+				return
 			_add_scene_to_library(scene_path)
-			print(scene_path)
+			print('Scene added to library:   ',scene_path)
 			return
+
+func is_a_duplicate(scene: String) -> bool:
+	for item_idx in self.item_count:
+		print('Item in prop_grid:   ', self.get_item_text(item_idx))
+		if self.get_item_text(item_idx) in scene:
+			print('AP.prop_grid.is_a_duplicate(): duplicate ->   ', scene)
+			return true
+	return false
 
 func _add_scene_to_library(scene_path: String) -> void:
 	var scene_name: String = scene_path.get_file().get_basename()
 	add_item(scene_name)
-	emit_signal("scene_added", scene_name, scene_path)
+	emit_signal("signal_add_scene_to_library", scene_name, scene_path)
 

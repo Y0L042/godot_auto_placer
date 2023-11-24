@@ -2,6 +2,7 @@
 extends EditorPlugin
 
 var library_ui: Control  # UI for the plugin
+var undo_redo: UndoRedo = UndoRedo.new()
 
 func _enter_tree() -> void:
 	library_ui = preload("res://addons/auto_placer/library_ui.tscn").instantiate()

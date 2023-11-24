@@ -37,12 +37,14 @@ func _ready() -> void:
 func autoplace_scenes() -> void:
 	var active_scene_root: Node = get_tree().edited_scene_root
 	print('Active Scene Root:   ', active_scene_root)
-	#debug_print_tree(active_scene_root)
-	place_scenes_recursive(active_scene_root, active_scene_root)
+	var undo_redo: EditorUndoRedoManager = ap_parent.get_undo_redo()   # ap_parent.undo_redo
+	undo_redo.create_action('Auto Place Scenes')
+	place_scenes_recursive(active_scene_root, active_scene_root, undo_redo)
+	undo_redo.commit_action()
 	debug_print_tree(active_scene_root)
 
 
-func place_scenes_recursive(node: Node, root_owner: Node) -> void:
+func place_scenes_recursive(node: Node, root_owner: Node, undo_redo: EditorUndoRedoManager) -> void:
 	var _root_owner: Node = root_owner
 	var has_placed_scene: bool = false
 	for child in node.get_children():
@@ -51,27 +53,39 @@ func place_scenes_recursive(node: Node, root_owner: Node) -> void:
 			var modified_name: String = child.name.replace(marker_key, "")
 			if node_name_in_library(modified_name):
 				print(' + ', child.name.replace(marker_key, ""), ' is in library')
-				place_scene(child, modified_name, _root_owner)
+				var scene_instance: Node = place_scene(child, modified_name, _root_owner, undo_redo)
 				has_placed_scene = true
 		else:
 			print(' - ',child.name, ' not found in library')
 		# Only continue recursion if no scene was placed in this child
 		if not has_placed_scene:
-			place_scenes_recursive(child, _root_owner)
+			place_scenes_recursive(child, _root_owner, undo_redo)
 
 
 
-func place_scene(node: Node, name: String, root_owner: Node) -> void:
+func place_scene(node: Node, name: String, root_owner: Node, undo_redo: EditorUndoRedoManager) -> Node:
 	var scene_resource: PackedScene = library_scenes[name]
 	if scene_resource is PackedScene:
 		var scene_instance: Node = scene_resource.instantiate()
+		#undo_redo.add_do_method(do_add_child.bind(node, scene_instance))
+		#undo_redo.add_do_method(node, 'add_child', scene_instance)
+		#undo_redo.add_undo_method(undo_add_child.bind(node, scene_instance))
+		undo_redo.add_undo_method(node, 'remove_child', scene_instance)
 		node.add_child(scene_instance)
 		scene_instance.set_owner(root_owner)
 		print('Placed Prop Owner: ',scene_instance.owner)
+		return scene_instance
+	return node
 
 #endregion Scene Placement Functions
 
 #region Utility Functions
+func do_add_child(parent: Node, child: Node) -> void:
+	parent.add_child(child)
+
+func undo_add_child(parent: Node, child: Node) -> void:
+	parent.remove_child(child)
+
 func save_current_scene(postfix: String = "") -> void:
 	var editor = ap_parent.get_editor_interface()
 	var current_scene = editor.get_edited_scene_root()

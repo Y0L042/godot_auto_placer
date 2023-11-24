@@ -21,27 +21,36 @@ func _ready() -> void:
 	btn_debug.pressed.connect(_on_btn_debug_pressed)
 
 
+
 func autoplace_scenes() -> void:
-	var active_scene: Node = get_tree().edited_scene_root
-	print('Active Scene:   ', active_scene)
-	print('Active Scene Children:   ', active_scene.get_children())
-	for node in active_scene.get_children():
-		print('Node Name:   ', node.name, '   - Node Children:   ',node.get_children())
-		if node_name_in_library(node.name):
-			print(node.name,'   is in library')
-			var scene_resource: PackedScene = library_scenes[node.name]
-			if scene_resource is PackedScene:
-				var scene_instance: Node = scene_resource.instantiate()
-				node.add_child(scene_instance)
-				scene_instance.set_owner(node.get_owner())
-				print(scene_instance.owner)
-				debug_print_tree(scene_instance)
+	var active_scene_root: Node = get_tree().edited_scene_root
+	print('Active Scene Root:   ', active_scene_root)
+	place_scenes_recursive(active_scene_root)
+
+func place_scenes_recursive(node: Node) -> void:
+	var has_placed_scene: bool = false
+
+	for child in node.get_children():
+		if node_name_in_library(child.name):
+			print(child.name, ' is in library')
+			place_scene(child)
+			has_placed_scene = true
 		else:
-			print(node.name,'   not found in library')
-		debug_print_tree(node.owner)
+			print(child.name, ' not found in library')
+
+		# Only continue recursion if no scene was placed in this child
+		if not has_placed_scene:
+			place_scenes_recursive(child)
 
 
-
+func place_scene(node: Node) -> void:
+	var scene_resource: PackedScene = library_scenes[node.name]
+	if scene_resource is PackedScene:
+		var scene_instance: Node = scene_resource.instantiate()
+		node.add_child(scene_instance)
+		scene_instance.set_owner(node.get_owner())
+		print(scene_instance.owner)
+		debug_print_tree(scene_instance)
 
 
 func save_current_scene(postfix: String = "") -> void:

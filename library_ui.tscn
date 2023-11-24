@@ -28,6 +28,19 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Auto Place"
 
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="lbl_marker_key" type="Label" parent="Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Place Marker Key:"
+
+[node name="txt_marker_key" type="TextEdit" parent="Panel/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+text = "_prop"
+
 [node name="lbl_prop_grid" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 tooltip_text = "Drop prop scenes here."
@@ -47,6 +60,7 @@ fixed_column_width = 150
 script = ExtResource("1_6anks")
 
 [node name="TextEdit" type="TextEdit" parent="Panel/VBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(150, 100)
 layout_mode = 2
 placeholder_text = "View Scene Info"

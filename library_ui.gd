@@ -9,13 +9,16 @@ extends Control
 #endregion Nodes
 
 #region Variables
+var ap_saver: AutoPlaceSaver = AutoPlaceSaver.new()
 var editor_interface:EditorInterface
 var ap_parent: EditorPlugin
 var debug_print_enabled: bool = true
 #endregion Variables
 
 #region Saved Variables TODO
+const marker_key_name: String = 'marker_key'
 var marker_key: String
+const library_scenes_name: String = 'library_scenes'
 var library_scenes: Dictionary = {}  # Dictionary to store scenes with their names as keys
 #endregion Saved Variables
 
@@ -28,9 +31,28 @@ func _ready() -> void:
 	btn_debug.pressed.connect(_on_btn_debug_pressed)
 	txt_marker_key.text_changed.connect(_on_txt_marker_key_changed)
 
-	# Set Variables
+	# Read Values from Save Config && Set Variables
+	var value: Variant = null
+
+	value = ap_saver.read_from_config(marker_key_name)
+	if typeof(value) == TYPE_STRING   &&   value != "":
+		marker_key = value
+		txt_marker_key.text = marker_key
+	else:
+		marker_key = txt_marker_key.text
+		ap_saver.call_deferred('write_to_config', marker_key_name, marker_key)
+
+	value = ap_saver.read_from_config(library_scenes_name)
+	if typeof(value) != TYPE_DICTIONARY:
+		library_scenes = {}
+		ap_saver.call_deferred('write_to_config', library_scenes_name, library_scenes)
+	elif typeof(value) == TYPE_DICTIONARY:
+		library_scenes = value
+		for item in library_scenes:
+			prop_grid.add_item(item)
+
 	prop_grid.mouse_filter = Control.MOUSE_FILTER_PASS # Set the item list mouse filter to pass to get the drag and drop working on this node
-	marker_key = txt_marker_key.text
+
 
 
 #region Scene Placement Functions
@@ -153,11 +175,13 @@ func _on_scene_added(scene_name: String, scene_path: String) -> void:
 	var scene_resource = load(scene_path)
 	if scene_resource and scene_resource is PackedScene:
 		library_scenes[scene_name] = scene_resource
+		ap_saver.write_to_config(library_scenes_name, library_scenes)
 
 
 func _on_txt_marker_key_changed() -> void:
 	var old_marker_key: String = marker_key
 	marker_key = txt_marker_key.text
+	ap_saver.write_to_config(marker_key_name, marker_key)
 	print('Marker Key changed from "', old_marker_key, '" to "', marker_key, '"')
 
 

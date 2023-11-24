@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cin28gf4fjgg0"]
+[gd_scene load_steps=3 format=3 uid="uid://cin28gf4fjgg0"]
 
 [ext_resource type="Script" path="res://addons/auto_placer/prop_grid.gd" id="1_6anks"]
 [ext_resource type="Script" path="res://addons/auto_placer/library_ui.gd" id="1_sb6ri"]
-[ext_resource type="Script" path="res://addons/auto_placer/drag_n_drop_test.gd" id="3_o056u"]
 
 [node name="Library UI" type="Control"]
 layout_mode = 3
@@ -33,7 +32,7 @@ layout_mode = 2
 
 [node name="lbl_marker_key" type="Label" parent="Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-tooltip_text = "Props will be placed under nodes that contains this key in their name.
+tooltip_text = "Props will be placed under nodes that contains this key in their name. Be sure to make the key unique!
 
 Use this key in tools, like Blender, when naming markers and empties."
 mouse_filter = 1
@@ -43,7 +42,7 @@ text = "Place Marker Key:"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
-text = "_prop_"
+text = "_prop_i"
 
 [node name="lbl_prop_grid" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -51,7 +50,10 @@ tooltip_text = "Drop prop scenes here."
 mouse_filter = 1
 text = "Prop Library"
 
-[node name="prop_grid" type="ItemList" parent="Panel/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="prop_grid" type="ItemList" parent="Panel/VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 150)
 layout_mode = 2
@@ -63,15 +65,20 @@ same_column_width = true
 fixed_column_width = 150
 script = ExtResource("1_6anks")
 
-[node name="TextEdit" type="TextEdit" parent="Panel/VBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(150, 100)
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-placeholder_text = "View Scene Info"
-wrap_mode = 1
-script = ExtResource("3_o056u")
+
+[node name="btn_prop_grid_remove_item" type="Button" parent="Panel/VBoxContainer/HBoxContainer2/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "Remove prop from library."
+text = "-"
 
 [node name="btn_debug" type="Button" parent="Panel/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Print 
 Debug Info"

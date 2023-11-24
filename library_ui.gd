@@ -6,10 +6,12 @@ extends Control
 @onready var btn_autoplace: Button = %btn_autoplace
 @onready var btn_debug: Button = $Panel/VBoxContainer/btn_debug
 @onready var txt_marker_key: TextEdit = %txt_marker_key
+@onready var btn_prop_grid_remove_item: Button = %btn_prop_grid_remove_item
+
 #endregion Nodes
 
 #region Variables
-var ap_saver: AutoPlaceSaver = AutoPlaceSaver.new()
+var ap_saver: AutoPlaceSaver
 var editor_interface:EditorInterface
 var ap_parent: EditorPlugin
 var debug_print_enabled: bool = true
@@ -27,11 +29,20 @@ var library_scenes: Dictionary = {}  # Dictionary to store scenes with their nam
 func _ready() -> void:
 	# Connect Signals
 	btn_autoplace.pressed.connect(_on_btn_autoplace_pressed)
+	btn_prop_grid_remove_item.pressed.connect(_on_btn_prop_grid_remove_item_pressed)
 	prop_grid.scene_added.connect(_on_scene_added)
-	btn_debug.pressed.connect(_on_btn_debug_pressed)
 	txt_marker_key.text_changed.connect(_on_txt_marker_key_changed)
 
+	btn_debug.pressed.connect(_on_btn_debug_pressed)
+
+
 	# Read Values from Save Config && Set Variables
+	ap_parent = AutoPlacer.instance
+	if AutoPlaceSaver.instance:
+		ap_saver = AutoPlaceSaver.instance
+	else:
+		ap_saver = AutoPlaceSaver.new(self)
+
 	var value: Variant = null
 
 	value = ap_saver.read_from_config(marker_key_name)
@@ -43,6 +54,7 @@ func _ready() -> void:
 		ap_saver.call_deferred('write_to_config', marker_key_name, marker_key)
 
 	value = ap_saver.read_from_config(library_scenes_name)
+	prop_grid.clear()
 	if typeof(value) != TYPE_DICTIONARY:
 		library_scenes = {}
 		ap_saver.call_deferred('write_to_config', library_scenes_name, library_scenes)
@@ -50,6 +62,7 @@ func _ready() -> void:
 		library_scenes = value
 		for item in library_scenes:
 			prop_grid.add_item(item)
+			print(item)
 
 	prop_grid.mouse_filter = Control.MOUSE_FILTER_PASS # Set the item list mouse filter to pass to get the drag and drop working on this node
 
@@ -170,6 +183,13 @@ func _on_btn_autoplace_pressed() -> void:
 	autoplace_scenes()
 	save_current_scene()
 
+func _on_btn_prop_grid_remove_item_pressed() -> void:
+	var selected_items: PackedInt32Array = prop_grid.get_selected_items()
+	for item_idx in selected_items:
+		var name: String = prop_grid.get_item_text(item_idx)
+		prop_grid.remove_item(item_idx)
+		library_scenes.erase(name)
+	ap_saver.write_to_config(library_scenes_name, library_scenes)
 
 func _on_scene_added(scene_name: String, scene_path: String) -> void:
 	var scene_resource = load(scene_path)

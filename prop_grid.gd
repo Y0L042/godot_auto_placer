@@ -30,9 +30,11 @@ func _can_drop_data(position, data) -> bool:
 
 func _drop_data(position, data) -> void:
 	if _can_drop_data(position, data):
-		var scene_path: String = data["files"][0]
-		_add_scene_to_library(scene_path)
-		print(scene_path)
+		if typeof(data) == TYPE_DICTIONARY && data.has('files'):
+			var scene_path: String = data['files'][0]
+			_add_scene_to_library(scene_path)
+			print(scene_path)
+			return
 
 func _add_scene_to_library(scene_path: String) -> void:
 	var scene_name: String = scene_path.get_file().get_basename()

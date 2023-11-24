@@ -11,6 +11,7 @@ extends Control
 #region Variables
 var editor_interface:EditorInterface
 var ap_parent: EditorPlugin
+var debug_print_enabled: bool = true
 #endregion Variables
 
 #region Saved Variables TODO
@@ -36,33 +37,37 @@ func _ready() -> void:
 func autoplace_scenes() -> void:
 	var active_scene_root: Node = get_tree().edited_scene_root
 	print('Active Scene Root:   ', active_scene_root)
-	place_scenes_recursive(active_scene_root)
+	#debug_print_tree(active_scene_root)
+	place_scenes_recursive(active_scene_root, active_scene_root)
+	debug_print_tree(active_scene_root)
 
 
-
-func place_scenes_recursive(node: Node) -> void:
+func place_scenes_recursive(node: Node, root_owner: Node) -> void:
+	var _root_owner: Node = root_owner
 	var has_placed_scene: bool = false
 	for child in node.get_children():
-		if node_name_in_library(child.name):
-			print(child.name, ' is in library')
-			place_scene(child)
-			has_placed_scene = true
+		#print('Testing --   Marker Key: ', marker_key, '   |   Child Name: ', child.name, '   |   [1] in [2]: ', marker_key in child.name)
+		if marker_key in child.name:
+			var modified_name: String = child.name.replace(marker_key, "")
+			if node_name_in_library(modified_name):
+				print(' + ', child.name.replace(marker_key, ""), ' is in library')
+				place_scene(child, modified_name, _root_owner)
+				has_placed_scene = true
 		else:
-			print(child.name, ' not found in library')
+			print(' - ',child.name, ' not found in library')
 		# Only continue recursion if no scene was placed in this child
 		if not has_placed_scene:
-			place_scenes_recursive(child)
+			place_scenes_recursive(child, _root_owner)
 
 
 
-func place_scene(node: Node) -> void:
-	var scene_resource: PackedScene = library_scenes[node.name]
+func place_scene(node: Node, name: String, root_owner: Node) -> void:
+	var scene_resource: PackedScene = library_scenes[name]
 	if scene_resource is PackedScene:
 		var scene_instance: Node = scene_resource.instantiate()
 		node.add_child(scene_instance)
-		scene_instance.set_owner(node.get_owner())
-		print(scene_instance.owner)
-		debug_print_tree(scene_instance)
+		scene_instance.set_owner(root_owner)
+		print('Placed Prop Owner: ',scene_instance.owner)
 
 #endregion Scene Placement Functions
 
@@ -137,7 +142,9 @@ func _on_scene_added(scene_name: String, scene_path: String) -> void:
 
 
 func _on_txt_marker_key_changed() -> void:
+	var old_marker_key: String = marker_key
 	marker_key = txt_marker_key.text
+	print('Marker Key changed from "', old_marker_key, '" to "', marker_key, '"')
 
 
 func _on_btn_debug_pressed() -> void:
@@ -148,7 +155,16 @@ func _on_btn_debug_pressed() -> void:
 
 #region Debug Functions
 func debug_print_tree(node: Node = self) -> void:
+	for _i in 2:
+		print('')
+	print('Debug Print: ')
+	print('Marker Key:   ', marker_key)
+	print('')
 	print('Scene Tree of node   ', node,'   :')
 	node.print_tree_pretty()
+
+#func db_print(variable) -> void:
+	#if debug_print_enabled:
+		#print(variable)
 
 #endregion Debug Functions

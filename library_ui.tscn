@@ -43,7 +43,7 @@ text = "Place Marker Key:"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
-text = "_prop"
+text = "_prop_"
 
 [node name="lbl_prop_grid" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2

@@ -1,7 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://cin28gf4fjgg0"]
 
-[ext_resource type="Script" path="res://addons/auto_placer/prop_grid.gd" id="1_6anks"]
-[ext_resource type="Script" path="res://addons/auto_placer/library_ui.gd" id="1_sb6ri"]
+[ext_resource type="Script" path="res://addons/addon_godot_auto_placer/prop_grid.gd" id="1_6anks"]
+[ext_resource type="Script" path="res://addons/addon_godot_auto_placer/library_ui.gd" id="1_sb6ri"]
+
 
 [node name="Auto Placer" type="Control"]
 layout_mode = 3
